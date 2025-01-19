@@ -5,12 +5,12 @@ import { toast } from 'sonner';
 import ConfirmationBanner from '../../components/confirmation-banner';
 
 
-const StaffDetailsGrid = ({setStaffInfo , setEditStaff , editStaff}) => {
+const StaffDetailsGrid = ({setStaffInfo , setEditStaff , editStaff , addStaffDetailsConfirmation}) => {
     const [listOfStaffDetails , setListOfStaffDetails] = useState([]);
     const [deleteConfirmation , setDeleteConfirmation] = useState(false);
     const [staffIndex , setStaffIndex] = useState(null);
     useEffect(()=>{
-        if(!editStaff && !deleteConfirmation){
+        if(!editStaff && !deleteConfirmation && !addStaffDetailsConfirmation){
             const fetchStaffList = async () => {
                 try{
                     const response = await getStaffDetails();
@@ -21,7 +21,7 @@ const StaffDetailsGrid = ({setStaffInfo , setEditStaff , editStaff}) => {
             };
             fetchStaffList();
         }
-    },[editStaff , deleteConfirmation]);
+    },[editStaff , deleteConfirmation , addStaffDetailsConfirmation]);
 
     const handleEditStaffDetails = (index) => {        
         setStaffInfo({...listOfStaffDetails[index]})

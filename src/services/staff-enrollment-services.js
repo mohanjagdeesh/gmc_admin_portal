@@ -42,3 +42,19 @@ export const deleteStaff = async (id) => {
         console.log(error);
     };
 };
+
+export const uploadBulkStaffData = async (csvData , file=false) => {
+    const headers = file ? {'Content-Type': 'multipart/form-data'} : {'Content-Type': 'application/json'}
+    try{
+        const requests = csvData.map((record) =>
+            axios.post(APP_URL, record, { headers })
+        );
+        const responses = await Promise.all(requests);
+        return {
+            message: 'success',
+            responses: responses.map((response) => response.data),
+        };
+    }catch(error){
+        console.log(error);
+    };
+};

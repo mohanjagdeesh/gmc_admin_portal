@@ -1,10 +1,12 @@
 import React,{useState , useRef , useEffect} from 'react'
-import { Button, FileInput, Label, TextInput , Dropdown } from "flowbite-react";
+import { Button, FileInput, Label, TextInput , Dropdown , HR} from "flowbite-react";
 import { ADMINISTRATION_DEPARTMENT_DESIGNATIONS, DEPARTMENTS_LIST } from '../../mock-data/departments-list';
 import { formatValueWithHyphens } from '../../utils/constants';
-import { enrollNewStaff, updateStaffDetails } from '../../services/staff-enrollment-services';
+import { enrollNewStaff, updateStaffDetails, uploadBulkStaffData } from '../../services/staff-enrollment-services';
 import { toast } from 'sonner';
 import StaffDetailsGrid from './staff-details-grid';
+import Papa from 'papaparse';
+import ConfirmationBanner from '../../components/confirmation-banner';
 
 const StaffEnrollment = () => {
   const [staffInfo , setStaffInfo] = useState({});
@@ -14,7 +16,8 @@ const StaffEnrollment = () => {
   const [aadhar, setAadhar] = useState("");
   const [editStaff , setEditStaff] = useState(false);
   const formRef = useRef(null);
-  
+  const [csvFile, setCsvFile] = useState(null);
+  const [addStaffDetailsConfirmation , setAddStaffDetailsConfirmation] = useState(false);
 
   const resetFormState = () => {
     setGender("");
@@ -39,7 +42,7 @@ const StaffEnrollment = () => {
           formRef.current.reset();
           resetFormState();
           setEditStaff(false);
-          toast('Staff Details Modified Successfully');
+          setAddStaffDetailsConfirmation(true);
         }else{
           toast('Fail') 
         };
@@ -50,7 +53,7 @@ const StaffEnrollment = () => {
         if(response.statusCode === 200){
           formRef.current.reset();
           resetFormState();
-          toast('Staff Enrolled Successfully');
+          setAddStaffDetailsConfirmation(true);
         }else{
           toast('Fail') 
         };
@@ -81,9 +84,42 @@ const StaffEnrollment = () => {
       formRef.current.reset();
     }
   }, [staffInfo]);
+
+  const saveCsvData = async () => {
+    if (!csvFile) {
+      toast("Please upload a CSV file first.");
+      return;
+    }
+
+    Papa.parse(csvFile, {
+      header: true,
+      skipEmptyLines: true,
+      complete: async (results) => {
+        const parsedData = results.data;
+        try {
+          const response = await uploadBulkStaffData(parsedData);
+          if(response.message === 'success'){
+            setAddStaffDetailsConfirmation(true);
+          }
+        } catch (error) {
+          console.error("Error saving CSV data:", error);
+          alert("Error saving some or all CSV records. Please try again.");
+        }
+      },
+    });
+  };
   return (
     <div className=' w-full my-5'>
       <h1 className=' text-3xl font-bold text-center'>Manage Staff</h1>
+      <HR/>
+      <div className='flex items-center gap-5'>
+        <div>
+          <Label htmlFor="staffBulkData" value="Upload Bulk Staff Data" />
+          <FileInput id='staffBulkData' accept='.csv' onChange={(e) => setCsvFile(e.target.files[0])} />
+        </div>
+        <Button onClick={saveCsvData} className=' self-end' type='button'>Upload</Button>
+      </div>
+      <HR/>
       <form ref={formRef} onSubmit={handleStaffEnrollment} className="flex flex-col gap-4">
         <div className="grid grid-cols-2 gap-5">
           <div>
@@ -166,7 +202,6 @@ const StaffEnrollment = () => {
               name="email"
               type="email"
               placeholder="Email"
-              required
               defaultValue={staffInfo?.email || ""}
             />
           </div>
@@ -177,7 +212,6 @@ const StaffEnrollment = () => {
               name="caste"
               type='text'
               placeholder="Caste"
-              required
               defaultValue={staffInfo?.caste || ""}
             />
           </div>
@@ -188,7 +222,6 @@ const StaffEnrollment = () => {
               name="aadhar"
               type='text'
               placeholder="1234-5678-9012"
-              required
               pattern="\d{4}-\d{4}-\d{4}"
               value={aadhar}
               onInvalid={(e) => e.target.setCustomValidity("Please enter Aadhaar in the format 1234-5678-9012")}
@@ -197,12 +230,21 @@ const StaffEnrollment = () => {
             />
           </div>
           <div>
+              <Label htmlFor="address" value="Address" />
+            <TextInput
+              id="address"
+              name="address"
+              type='text'
+              placeholder="Address"
+              defaultValue={staffInfo?.caste || ""}
+            />
+          </div>
+          <div>
               <Label htmlFor="dob" value="DOB" />
             <TextInput
               id="dob"
               name="dob"
               type='date'
-              required
               defaultValue={staffInfo?.dob || ""}
             />
           </div>
@@ -212,7 +254,6 @@ const StaffEnrollment = () => {
               id="doj"
               name="doj"
               type='date'
-              required
               defaultValue={staffInfo?.doj || ""}
             />
           </div>
@@ -223,7 +264,8 @@ const StaffEnrollment = () => {
           <Button className=' self-end' type="submit">{editStaff ? 'Update Staff Info' : 'Add Staff Info'}</Button>
         </div>
       </form>
-      <StaffDetailsGrid setStaffInfo={setStaffInfo} setEditStaff={setEditStaff} editStaff={editStaff} />
+      {addStaffDetailsConfirmation && <ConfirmationBanner title='Staff Details Added Successfully' confButton='OK' onCancel={()=>setAddStaffDetailsConfirmation(false)} onConfirm={()=>setAddStaffDetailsConfirmation(false)}/>}
+      <StaffDetailsGrid setStaffInfo={setStaffInfo} setEditStaff={setEditStaff} editStaff={editStaff} addStaffDetailsConfirmation={addStaffDetailsConfirmation} />
     </div>
   )
 }
