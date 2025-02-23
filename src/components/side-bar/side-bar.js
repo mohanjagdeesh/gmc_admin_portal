@@ -15,7 +15,7 @@ const SideBar = () => {
           <Sidebar.Item href="/mc-corner" icon={HiInbox}>
             MC-Corner
           </Sidebar.Item>
-          <Sidebar.Item href="#" icon={GiOrganigram}>
+          <Sidebar.Item href="/gmc-body" icon={GiOrganigram}>
             GMC-Body
           </Sidebar.Item>
           <Sidebar.Item href="/hods" icon={HiShoppingBag}>

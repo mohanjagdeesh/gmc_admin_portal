@@ -4,11 +4,10 @@ import { ADMINISTRATION_DEPARTMENT_DESIGNATIONS, DEPARTMENTS_LIST } from '../../
 import { formatValueWithHyphens } from '../../utils/constants';
 import { enrollNewStaff, updateStaffDetails, uploadBulkStaffData } from '../../services/staff-enrollment-services';
 import { toast } from 'sonner';
-import StaffDetailsGrid from './staff-details-grid';
 import Papa from 'papaparse';
 import ConfirmationBanner from '../../components/confirmation-banner';
 
-const StaffEnrollment = () => {
+const GmcBody = () => {
   const [staffInfo , setStaffInfo] = useState({});
   const [gender, setGender] = useState(staffInfo?.gender || "");
   const [section, setSection] = useState(staffInfo?.department || "");
@@ -110,22 +109,7 @@ const StaffEnrollment = () => {
   };
   return (
     <div className=' w-full my-5'>
-      <h1 className=' text-3xl font-bold text-center'>Manage Staff</h1>
-      <HR/>
-      <div className=' flex items-center gap-5'>
-        <div className='flex items-center gap-5'>
-          <div>
-            <Label htmlFor="staffBulkData" value="Upload Bulk Staff Data" />
-            <FileInput id='staffBulkData' accept='.csv' onChange={(e) => setCsvFile(e.target.files[0])} />
-          </div>
-          <Button onClick={saveCsvData} className=' self-end' type='button'>Upload</Button>
-        </div>
-        <div>
-          <Label htmlFor="searchByName" value="Search By Name" />
-          <TextInput id='searchByName' className=' self-end' type='text' placeholder='Search Staff By Name' onChange={(e)=> console.log(e.target.value)
-          } />
-        </div>
-      </div>
+      <h1 className=' text-3xl font-bold text-center'>GMC Body</h1>
       <HR/>
       <form ref={formRef} onSubmit={handleStaffEnrollment} className="flex flex-col gap-4">
         <div className="grid grid-cols-2 gap-5">
@@ -155,22 +139,6 @@ const StaffEnrollment = () => {
                   <Dropdown.Item onClick={() => setGender("Female")}>
                     Female
                   </Dropdown.Item>
-                </Dropdown>
-              </div>
-            </div>
-            <div>
-              <Label htmlFor="section" value="Section" />
-              <div>
-                <Dropdown
-                  id="section"
-                  label={section || "Select Section"}
-                  name="section"
-                >
-                  {
-                    DEPARTMENTS_LIST.map((eachDept,index)=> <Dropdown.Item key={index} onClick={() => setSection(eachDept)}>
-                    {eachDept}
-                  </Dropdown.Item>)
-                  }
                 </Dropdown>
               </div>
             </div>
@@ -264,17 +232,16 @@ const StaffEnrollment = () => {
               defaultValue={staffInfo?.doj || ""}
             />
           </div>
-          {/* <div>
+          <div>
               <Label htmlFor="image" value="Upload file" />
             <FileInput id="image" name="image" />
-          </div> */}
+          </div>
           <Button className=' self-end' type="submit">{editStaff ? 'Update Staff Info' : 'Add Staff Info'}</Button>
         </div>
       </form>
       {addStaffDetailsConfirmation && <ConfirmationBanner title='Staff Details Added Successfully' confButton='OK' onCancel={()=>setAddStaffDetailsConfirmation(false)} onConfirm={()=>setAddStaffDetailsConfirmation(false)}/>}
-      <StaffDetailsGrid setStaffInfo={setStaffInfo} setEditStaff={setEditStaff} editStaff={editStaff} addStaffDetailsConfirmation={addStaffDetailsConfirmation} />
     </div>
   )
 }
 
-export default StaffEnrollment
+export default GmcBody

@@ -67,19 +67,24 @@ const McCorner = () => {
       <div className="mt-5">
         {uploadedImages && uploadedImages.length > 0 ? (
           <div className="flex items-center gap-4">
-            {uploadedImages?.map((each, index) => (
-              <div key={index} className="flex flex-col items-center relative">
-              <div className="relative">
-                <img
-                  src={URL.createObjectURL(each)}
-                  alt={each.name}
-                  className="w-32 h-32 object-cover border rounded shadow"
-                />
-                <FaTrash className="absolute bottom-1 right-1 text-red-600 cursor-pointer bg-white rounded-full p-1" />
+            {uploadedImages?.map((each, index) => {
+              const deleteUploadedImages = (img) => {
+                setUploadedImages(uploadedImages.filter((eachImg)=> eachImg.name !== img.name));
+              }
+              return(
+                <div key={index} className="flex flex-col items-center relative">
+                <div className="relative">
+                  <img
+                    src={URL.createObjectURL(each)}
+                    alt={each.name}
+                    className="w-32 h-32 object-cover border rounded shadow"
+                  />
+                  <FaTrash onClick={()=>deleteUploadedImages(each)} className="absolute bottom-1 right-1 text-red-600 cursor-pointer bg-white rounded-full p-1" />
+                </div>
+                <p className="mt-2 text-center text-sm">{each.name}</p>
               </div>
-              <p className="mt-2 text-center text-sm">{each.name}</p>
-            </div>            
-            ))}
+              )           
+            })}
           </div>
         ) : (
           <h1 className='text-center text-3xl font-bold text-red-300'>No Existing Images Here</h1>
